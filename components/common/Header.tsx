@@ -66,7 +66,7 @@ export function Header({ breadcrumbs, user, notifications }: HeaderProps) {
                 <div key={index} className="flex items-center space-x-2">
                   {index > 0 && <span className="text-gray-400">/</span>}
                   <Link
-                    href={item.href}
+                    href={item.href || "#"}
                     className={`px-2 py-1 rounded-md transition-all duration-200 hover:scale-105 hover:bg-gray-100 ${
                       item.isActive ? "text-gray-900 font-medium bg-gray-50" : "text-gray-600 hover:text-gray-900"
                     }`}
@@ -123,14 +123,14 @@ export function Header({ breadcrumbs, user, notifications }: HeaderProps) {
                     <UserIcon className="h-4 w-4 text-gray-600" />
                   </div>
                   <div className="text-left hidden sm:block">
-                    <div className="text-sm font-medium text-gray-900">{user.name}</div>
+                    <div className="text-sm font-medium text-gray-900">{user?.name || "User"}</div>
                   </div>
                   <ChevronDown className="h-4 w-4 text-gray-500" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">
                 <div className="px-3 py-2 border-b border-gray-100">
-                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-sm font-medium text-gray-900">{user?.name || "User"}</p>
                 </div>
                 <DropdownMenuItem className="cursor-pointer">
                   <UserIcon className="mr-2 h-4 w-4" />

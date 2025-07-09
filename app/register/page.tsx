@@ -57,7 +57,7 @@ export default function RegisterPage() {
           <CheckCircle2 className="w-16 h-16 text-green-600 mx-auto mb-6" />
           <h1 className="text-2xl font-light text-gray-900 mb-4">Account created</h1>
           <p className="text-gray-600 mb-8">Welcome to Hikma! You can now sign in.</p>
-          <Link href="/login">
+          <Link href="/auth/login">
             <Button className="w-full h-12 bg-gray-900 hover:bg-gray-800">Continue to login</Button>
           </Link>
         </div>
@@ -138,7 +138,7 @@ export default function RegisterPage() {
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-600">
             Already have an account?{" "}
-            <Link href="/login" className="text-gray-900 hover:underline font-medium">
+            <Link href="/auth/login" className="text-gray-900 hover:underline font-medium">
               Sign in
             </Link>
           </p>

@@ -199,7 +199,7 @@ export default function LoginPage() {
                   />
                   <span className="text-gray-600">Remember me</span>
                 </label>
-                <Link href="/forgot-password" className="text-teal-600 hover:text-teal-700 transition-colors">
+                <Link href="/auth/forgot-password" className="text-teal-600 hover:text-teal-700 transition-colors">
                   Forgot password?
                 </Link>
               </div>
