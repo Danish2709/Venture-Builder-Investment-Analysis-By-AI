@@ -29,6 +29,7 @@ import { useRouter } from "next/navigation"
 import { Header } from "@/components/common/Header"
 import { SessionManager } from "@/utils/sessionManager"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
+import { analyzeWithGemini } from "@/utils/generativeAI"
 
 export default function MainDashboard() {
   const router = useRouter()
@@ -278,6 +279,11 @@ export default function MainDashboard() {
   }
 
   const handleFileUpload = async (file: File) => {
+    const result = await analyzeWithGemini(
+      file,
+      "Summarize this document and extract key insights."
+    );
+    console.log(result);
     if (!selectedOption) {
       alert("Please select an investment type first")
       return
