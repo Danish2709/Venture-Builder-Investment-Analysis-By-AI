@@ -29,13 +29,14 @@ import { useRouter } from "next/navigation"
 import { Header } from "@/components/common/Header"
 import { SessionManager } from "@/utils/sessionManager"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
-import { analyzeWithGemini, fileToBase64 } from "@/utils/generativeAI"
-import { getFile, saveFile } from "@/utils/dbManager"
-import { investmentRecommendationPrompt } from "@/data/prompts"
-import { recommendationSchema } from "@/types/yamm"
+import { fileToBase64 } from "@/utils/generativeAI"
+import { saveFile } from "@/utils/dbManager"
+import { useAnalysisResult } from "@/context/AnalysisResultContext"
 
 export default function MainDashboard() {
   const router = useRouter()
+  const { getInvestmentRecommendation, getGeneralParameters, getEvaluationScores, getKeyInsights, getRiskAnalysis } =
+		useAnalysisResult();
   const [isLoading, setIsLoading] = useState(true)
   const [isFileSelected, setIsFileSelected] = useState<boolean>(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
@@ -282,43 +283,20 @@ export default function MainDashboard() {
     }
   }
 
-  const getInvestmentRecommendation = async (file: File) => {
-		const base64 = await fileToBase64(file); // Or use directly if already available
-		const mimeType = file.type || 'application/pdf';
-
-		const finalPrompt = investmentRecommendationPrompt
-			.replace('{base64}', base64)
-			.replace('{mimeType}', mimeType)
-			.replace('{investmentType}', selectedOption ?? '')
-			.replace(
-				'{formatInstructions}',
-				JSON.stringify(
-					{
-						keyRecommendations: 'string[] - top strategic recommendations tailored to the investment stage',
-					},
-					null,
-					2
-				)
-			);
-
-		const result = await analyzeWithGemini(
-			finalPrompt,
-			recommendationSchema,
-    );
-    
-		console.log(result);
-  };
-
   const handleFileUpload = async (file: File) => {
-		setIsFileSelected(true);
-    getInvestmentRecommendation(file);
+    setIsFileSelected(true);
+    await getInvestmentRecommendation(file, selectedOption);
+    await getGeneralParameters(file);
+    await getEvaluationScores(file);
+    await getKeyInsights(file);
+    await getRiskAnalysis(file);
 		if (!selectedOption) {
 			alert('Please select an investment type first');
 			return;
 		}
 
 		console.log(`Uploading file:`, file.name);
-		setIsAnalyzing(true);
+		// setIsAnalyzing(true);
 
 		// Store analysis data in sessionStorage for the analysis page
 		const analysisData = {
@@ -341,7 +319,7 @@ export default function MainDashboard() {
 		}
 
 		// Navigate to analysis loading page
-		router.push('/analysis/loading');
+		// router.push('/analysis/loading');
   };
 
   const handleLinkSubmit = (e: React.FormEvent) => {
@@ -363,13 +341,13 @@ export default function MainDashboard() {
     setIsAnalyzing(true)
 
     // Store analysis data in sessionStorage for the analysis page
-    const analysisData = {
-      type: linkInput.trim() ? "link" : "general",
-      source: linkInput.trim() || `${selectedOption} analysis`,
-      investmentType: selectedOption,
-      timestamp: new Date().toISOString(),
-    }
-    sessionStorage.setItem("analysisData", JSON.stringify(analysisData))
+    // const analysisData = {
+    //   type: linkInput.trim() ? "link" : "general",
+    //   source: linkInput.trim() || `${selectedOption} analysis`,
+    //   investmentType: selectedOption,
+    //   timestamp: new Date().toISOString(),
+    // }
+    // sessionStorage.setItem("analysisData", JSON.stringify(analysisData))
 
     // Navigate to analysis loading page
     router.push("/analysis/loading")

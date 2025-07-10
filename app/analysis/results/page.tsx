@@ -19,6 +19,7 @@ import {
   Flag,
 } from "lucide-react"
 import { Header } from "@/components/common/Header"
+import { useAnalysisResult } from "@/context/AnalysisResultContext"
 
 interface AnalysisData {
   company: {
@@ -305,6 +306,7 @@ const DEFAULT_DATA: AnalysisData = {
 export default function AnalysisResultsPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const { overallScore, analysisResult } = useAnalysisResult()
   const [data, setData] = useState<AnalysisData>(DEFAULT_DATA)
   const [isLoading, setIsLoading] = useState(true)
   const [dataSource, setDataSource] = useState<"sessionStorage" | "localStorage" | "urlParams" | "default">("default")
@@ -539,7 +541,7 @@ export default function AnalysisResultsPage() {
                   <Building className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-medium text-gray-900 tracking-tight">{data.company.name}</h1>
+                  <h1 className="text-2xl font-medium text-gray-900 tracking-tight">{analysisResult?.company?.name}</h1>
                   <p className="text-sm text-gray-600">Real Estate Investment Platform</p>
                 </div>
               </div>
@@ -547,23 +549,21 @@ export default function AnalysisResultsPage() {
               <div className="flex items-center space-x-4 text-gray-500 mb-3">
                 <div className="flex items-center space-x-1">
                   <Building className="h-3 w-3" />
-                  <span className="text-xs">{data.company.industry}</span>
+                  <span className="text-xs">{analysisResult?.company?.industry}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Target className="h-3 w-3" />
-                  <span className="text-xs">{data.company.stage}</span>
+                  <span className="text-xs">{analysisResult?.company?.growthStage}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <MapPin className="h-3 w-3" />
-                  <span className="text-xs">{data.company.location}</span>
+                  <span className="text-xs">{analysisResult?.company?.location}</span>
                 </div>
               </div>
 
               <div className="text-sm text-gray-600 leading-relaxed max-w-4xl">
                 <p>
-                  Stake is a pioneering PropTech platform in Saudi Arabia that democratizes real estate investment by
-                  enabling fractional ownership of premium real estate funds. Starting from just SAR 500, investors can
-                  access exclusive income-generating real estate opportunities across the Kingdom.
+                  {analysisResult?.company?.description}
                 </p>
               </div>
             </div>
@@ -613,15 +613,16 @@ export default function AnalysisResultsPage() {
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
-                        strokeDasharray={`${data.overallScore}, 100`}
+                        strokeDasharray={`${overallScore}, 100`}
                         strokeLinecap="round"
-                        className={`${getScoreColor(data.overallScore)} transition-all duration-500`}
+                        className={`${getScoreColor(overallScore)} transition-all duration-500`}
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className={`text-3xl font-medium ${getScoreColor(data.overallScore)} tracking-tight`}>
-                        {data.overallScore}
-                      </span>
+                      <span
+												className={`text-3xl font-medium ${getScoreColor(overallScore)} tracking-tight`}>
+												{overallScore}
+											</span>
                       <span className="text-xs text-gray-400 mt-0.5 font-medium">/ 100</span>
                     </div>
                   </div>
@@ -630,8 +631,8 @@ export default function AnalysisResultsPage() {
                     <div className="flex items-center justify-center space-x-2 p-3 bg-gray-50 rounded-lg border">
                       <Eye className="h-4 w-4 text-gray-400" />
                       <span className="text-xs font-medium text-gray-600">Confidence</span>
-                      <span className={`text-sm font-medium ${getScoreColor(data.confidence)}`}>
-                        {data.confidence}%
+                      <span className={`text-sm font-medium ${getScoreColor(Number(analysisResult?.company?.confidence))}`}>
+                        {analysisResult?.company?.confidence}%
                       </span>
                     </div>
 
@@ -650,19 +651,19 @@ export default function AnalysisResultsPage() {
                     <div className="pt-4 border-t border-gray-100 space-y-2">
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-500">ARR</span>
-                        <span className="font-medium text-gray-900">{data.financials.arr}</span>
+                        <span className="font-medium text-gray-900">{analysisResult?.company?.financials?.arr}</span>
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-500">Revenue Growth</span>
-                        <span className="font-medium text-gray-900">{data.financials.growth}</span>
+                        <span className="font-medium text-gray-900">{analysisResult?.company?.financials?.revenueGrowth}</span>
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-500">Burn Rate</span>
-                        <span className="font-medium text-gray-900">{data.financials.burnRate}</span>
+                        <span className="font-medium text-gray-900">{analysisResult?.company?.financials?.burnRate}</span>
                       </div>
                       <div className="flex justify-between text-xs">
                         <span className="text-gray-500">LTV/CAC</span>
-                        <span className="font-medium text-gray-900">11.4x</span>
+                        <span className="font-medium text-gray-900">{analysisResult?.company?.financials?.ltvToCacRatio}</span>
                       </div>
                     </div>
                   </div>
@@ -679,35 +680,14 @@ export default function AnalysisResultsPage() {
                   <div className="recommendation-content">
                     <div className="space-y-4">
                       <div>
-                        <p className="text-sm text-gray-700">
-                          Stake presents a compelling investment opportunity in the Saudi Arabian PropTech sector.
-                        </p>
-                      </div>
-
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-900 mb-3">Key Rationale</h4>
                         <div className="space-y-2">
-                          <div className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-sm text-gray-600">
-                              Positioned to capitalize on the rapidly growing Saudi real estate market, driven by Vision
-                              2030 and increasing retail investor participation.
-                            </p>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-sm text-gray-600">
-                              First platform in Saudi Arabia to offer fractional real estate investment, providing
-                              significant advantage in capturing the underserved retail investor segment.
-                            </p>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-sm text-gray-600">
-                              Demonstrates strong financial performance with impressive revenue growth, high gross
-                              margins, and favorable LTV/CAC ratio.
-                            </p>
-                          </div>
+                          {analysisResult?.keyRecommendations?.map((rec, index) => (
+                            <div key={index} className="flex items-start space-x-2">
+                              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2 flex-shrink-0"></div>
+                              <p className="text-sm text-gray-600">{rec}</p>
+                            </div>
+                          ))
+                          }
                         </div>
                       </div>
                     </div>
@@ -716,7 +696,7 @@ export default function AnalysisResultsPage() {
                   {/* Overview Content */}
                   <div className="overview-content" style={{ display: "none" }}>
                     <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(data.scores).map(([key, score]) => {
+                      {Object.entries(analysisResult?.evaluationScores ?? {}).map(([key, score]) => {
                         const icons = {
                           teamComposition: Users,
                           marketIntelligence: Target,
@@ -820,7 +800,7 @@ export default function AnalysisResultsPage() {
                   {/* Insights Content */}
                   <div className="insights-content" style={{ display: "none" }}>
                     <div className="space-y-3">
-                      {data.keyInsights.map((insight, index) => (
+                      {analysisResult?.keyInsights?.map((insight, index) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-3">
                           <div className="flex items-start space-x-2">
                             <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -839,7 +819,7 @@ export default function AnalysisResultsPage() {
                   {/* Risks Content */}
                   <div className="risks-content" style={{ display: "none" }}>
                     <div className="space-y-3">
-                      {data.risks.map((risk, index) => (
+                      {analysisResult?.riskAnalysis?.map((risk, index) => (
                         <div key={index} className="border border-gray-200 rounded-lg p-3">
                           <div className="flex items-start space-x-2">
                             <div className="w-6 h-6 bg-gray-50 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
