@@ -17,7 +17,7 @@ const google = createGoogleGenerativeAI({
 	apiKey: 'AIzaSyAYF_flfuyGcxorcbda5DJ2cDZpTEyBZ34', // Replace with env var if needed
 });
 
-const model = google('gemini-2.5-flash');
+const model = google('gemini-2.0-flash');
 
 /**
  * Generic Gemini analysis function for base64 input (instead of file).
