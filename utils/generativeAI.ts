@@ -1,8 +1,4 @@
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-
-const google = createGoogleGenerativeAI({
-  apiKey: "YOUR_GEMINI_API_KEY", // 👉 Use env var in production
-});
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 /**
  * Convert uploaded File to base64 string
@@ -16,21 +12,23 @@ const fileToBase64 = async (file: File): Promise<string> => {
 };
 
 /**
- * Analyze a file using Gemini 2.5 Pro with a custom prompt
+ * Analyze a file using Gemini 1.5 Pro (Gemini 2.5 capable)
  */
 export async function analyzeWithGemini(
   file: File,
   prompt: string
 ): Promise<string> {
-  const base64Data = await fileToBase64(file);
-  const mimeType = file.type || "application/pdf"; // fallback
+  const genAI = new GoogleGenerativeAI("AIzaSyAYF_flfuyGcxorcbda5DJ2cDZpTEyBZ34"); // Replace with your key
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-  const result = await google.generateContent({
-    model: "gemini-1.5-pro", // Gemini 2.5 Pro is available via this name
-    messages: [
+  const base64Data = await fileToBase64(file);
+  const mimeType = file.type || "application/pdf";
+
+  const result = await model.generateContent({
+    contents: [
       {
         role: "user",
-        content: [
+        parts: [
           { text: prompt },
           {
             inlineData: {
@@ -43,5 +41,6 @@ export async function analyzeWithGemini(
     ],
   });
 
-  return result.text;
+  const response = result.response;
+  return response.text();
 }
