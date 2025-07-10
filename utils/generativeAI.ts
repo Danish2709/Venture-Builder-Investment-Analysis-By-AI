@@ -22,17 +22,13 @@ const model = google('gemini-2.5-flash');
 /**
  * Generic Gemini analysis function for base64 input (instead of file).
  */
-export async function analyzeWithGemini<T>(
-	finalPrompt: string,
-  schema: ZodSchema<T>,
-	temperature = 0.7
-): Promise<T> {
+export async function analyzeWithGemini<T>(finalPrompt: string, schema: ZodSchema<T>, temperature = 0.7): Promise<T> {
 	const { object } = await generateObject({
 		model,
 		prompt: finalPrompt,
-    schema,
+		schema,
 		temperature,
 	});
-
+	console.log('Generated object:', object);
 	return object;
 }

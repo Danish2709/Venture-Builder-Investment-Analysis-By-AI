@@ -273,7 +273,7 @@ export default function AnalysisLoadingPage() {
 
     const interval = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + 100 / 100 // 10 seconds total
+        const newProgress = prev + 100 / 600
 
         // Update current stage
         const stageIndex = Math.floor((newProgress / 100) * stages.length)
