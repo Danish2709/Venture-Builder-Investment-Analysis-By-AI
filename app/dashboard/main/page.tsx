@@ -29,7 +29,10 @@ import { useRouter } from "next/navigation"
 import { Header } from "@/components/common/Header"
 import { SessionManager } from "@/utils/sessionManager"
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute"
-import { analyzeWithGemini } from "@/utils/generativeAI"
+import { analyzeWithGemini, fileToBase64 } from "@/utils/generativeAI"
+import { getFile, saveFile } from "@/utils/dbManager"
+import { investmentRecommendationPrompt } from "@/data/prompts"
+import { recommendationSchema } from "@/types/yamm"
 
 export default function MainDashboard() {
   const router = useRouter()
@@ -279,33 +282,67 @@ export default function MainDashboard() {
     }
   }
 
-  const handleFileUpload = async (file: File) => {
-    setIsFileSelected(true)
-    const result = await analyzeWithGemini(
-      file,
-      "Summarize this document and extract key insights."
+  const getInvestmentRecommendation = async (file: File) => {
+		const base64 = await fileToBase64(file); // Or use directly if already available
+		const mimeType = file.type || 'application/pdf';
+
+		const finalPrompt = investmentRecommendationPrompt
+			.replace('{base64}', base64)
+			.replace('{mimeType}', mimeType)
+			.replace('{investmentType}', selectedOption ?? '')
+			.replace(
+				'{formatInstructions}',
+				JSON.stringify(
+					{
+						keyRecommendations: 'string[] - top strategic recommendations tailored to the investment stage',
+					},
+					null,
+					2
+				)
+			);
+
+		const result = await analyzeWithGemini(
+			finalPrompt,
+			recommendationSchema,
     );
-    console.log(result);
-    if (!selectedOption) {
-      alert("Please select an investment type first")
-      return
-    }
+    
+		console.log(result);
+  };
 
-    console.log(`Uploading file:`, file.name)
-    setIsAnalyzing(true)
+  const handleFileUpload = async (file: File) => {
+		setIsFileSelected(true);
+    getInvestmentRecommendation(file);
+		if (!selectedOption) {
+			alert('Please select an investment type first');
+			return;
+		}
 
-    // Store analysis data in sessionStorage for the analysis page
-    const analysisData = {
-      type: "file",
-      source: file.name,
-      investmentType: selectedOption,
-      timestamp: new Date().toISOString(),
-    }
-    sessionStorage.setItem("analysisData", JSON.stringify(analysisData))
+		console.log(`Uploading file:`, file.name);
+		setIsAnalyzing(true);
 
-    // Navigate to analysis loading page
-    router.push("/analysis/loading")
-  }
+		// Store analysis data in sessionStorage for the analysis page
+		const analysisData = {
+			type: 'file',
+			source: file.name,
+			investmentType: selectedOption,
+			timestamp: new Date().toISOString(),
+		};
+		sessionStorage.setItem('analysisData', JSON.stringify(analysisData));
+
+		// Save file to IndexedDB for later retrieval
+		try {
+			const base64Data = await fileToBase64(file);
+			await saveFile(file.name, base64Data);
+			console.log(`File ${file.name} saved successfully.`);
+		} catch (error) {
+			console.error('Error saving file:', error);
+			alert('Failed to save file. Please try again.');
+			return;
+		}
+
+		// Navigate to analysis loading page
+		router.push('/analysis/loading');
+  };
 
   const handleLinkSubmit = (e: React.FormEvent) => {
     e.preventDefault()
