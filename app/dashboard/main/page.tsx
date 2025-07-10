@@ -34,6 +34,7 @@ import { analyzeWithGemini } from "@/utils/generativeAI"
 export default function MainDashboard() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(true)
+  const [isFileSelected, setIsFileSelected] = useState<boolean>(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [dragOver, setDragOver] = useState(false)
   const [linkInput, setLinkInput] = useState("")
@@ -279,6 +280,7 @@ export default function MainDashboard() {
   }
 
   const handleFileUpload = async (file: File) => {
+    setIsFileSelected(true)
     const result = await analyzeWithGemini(
       file,
       "Summarize this document and extract key insights."
@@ -832,10 +834,10 @@ export default function MainDashboard() {
                 </div>
                 <Button
                   type="button"
-                  disabled={!selectedOption || isAnalyzing}
+                  disabled={!selectedOption || !isFileSelected || isAnalyzing}
                   onClick={handleAnalysisClick}
                   className={`group relative overflow-hidden rounded-xl px-8 h-12 text-sm font-semibold min-w-[140px] transition-all duration-300 transform ${
-                    !selectedOption || isAnalyzing
+                    !selectedOption || !isFileSelected || isAnalyzing
                       ? "bg-gray-300 cursor-not-allowed"
                       : "bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 hover:scale-105 hover:shadow-lg active:scale-95"
                   }`}
