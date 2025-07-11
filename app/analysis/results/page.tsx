@@ -20,6 +20,9 @@ import {
 } from "lucide-react"
 import { Header } from "@/components/common/Header"
 import { useAnalysisResult } from "@/context/AnalysisResultContext"
+import "jspdf-autotable"
+import jsPDF from "jspdf"
+import { createInvestmentSummaryPdf } from "@/utils/pdfUtils"
 
 interface AnalysisData {
   company: {
@@ -348,22 +351,17 @@ export default function AnalysisResultsPage() {
   }
 
   const handleDownloadReport = async () => {
-    setIsDownloading(true)
-
-    // Simulate PDF generation
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Create a mock PDF download
-    const element = document.createElement("a")
-    element.href =
-      "data:application/pdf;base64,JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PAovVGl0bGUgKFN0YWtlIFJlYWwgRXN0YXRlIEludmVzdG1lbnQgQW5hbHlzaXMpCi9DcmVhdG9yICgxOTU3IFZlbnR1cmVzKQovUHJvZHVjZXIgKDE5NTcgVmVudHVyZXMpCi9DcmVhdGlvbkRhdGUgKEQ6MjAyNDAxMDExMjAwMDBaKQo+PgplbmRvYmoKeHJlZgowIDEKMDAwMDAwMDAwMCA2NTUzNSBmIAp0cmFpbGVyCjw8Ci9TaXplIDEKL1Jvb3QgMSAwIFIKPj4Kc3RhcnR4cmVmCjE3MwolJUVPRg=="
-    element.download = `Stake_Real_Estate_Investment_Analysis_${new Date().toISOString().split("T")[0]}.pdf`
-    document.body.appendChild(element)
-    element.click()
-    document.body.removeChild(element)
-
-    setIsDownloading(false)
-  }
+    setIsDownloading(true);
+    const summary = analysisResult?.investmentSummary;
+    if (!summary) {
+      alert('No summary available');
+      setIsDownloading(false);
+      return;
+    }
+    const doc = createInvestmentSummaryPdf(summary);
+    doc.save(`Investment_Summary_${new Date().toISOString().split('T')[0]}.pdf`);
+    setIsDownloading(false);
+  };
 
   // Load analysis data with multiple fallback methods
   const loadAnalysisData = (): AnalysisData | null => {

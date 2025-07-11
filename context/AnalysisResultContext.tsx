@@ -15,33 +15,15 @@ import {
 import { evaluationScores } from '@/types/evaluationScores.type';
 import { keyInsightsSchema } from '@/types/keyInsightSchema.type';
 import { risksSchema } from '@/types/risksSchema.type';
-import { saveFile } from '@/utils/dbManager';
+import { InvestmentSummary, investmentSummarySchema } from '@/types/investmentSummary.type';
 
 const AnalysisResultContext = createContext<AnalysisResultContextType | undefined>(undefined);
 
 export const AnalysisResultProvider = ({ children }: { children: ReactNode }) => {
-	const [fileDetails, setFileDetails] = useState<{
-		base64EncodedFile: string | null;
-		fileName: string | null;
-		mimeType: string | null;
-	}>(null);
 	const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
 	const overallScore = React.useMemo(() => {
 		return Math.floor(Object.values(analysisResult?.evaluationScores ?? {}).reduce((acc, val) => acc + val, 0) / 6);
 	}, [analysisResult]);
-
-	// const persistFileInDatabase = React.useCallback(async (file: File) => {
-	// 	try {
-	// 		const base64Data = await fileToBase64(file);
-	// 		setBase64EncodedFile(base64Data);
-	// 		await saveFile(file.name, base64Data);
-	// 		console.log(`File ${file.name} saved successfully.`);
-	// 	} catch (error) {
-	// 		console.error('Error saving file:', error);
-	// 		alert('Failed to save file. Please try again.');
-	// 		return;
-	// 	}
-	// }, []);
 
 	const getInvestmentRecommendation = React.useCallback(async (file: File, selectedOption: string | null) => {
 		const base64 = await fileToBase64(file);
@@ -211,6 +193,32 @@ export const AnalysisResultProvider = ({ children }: { children: ReactNode }) =>
 		}));
 	}, []);
 
+	const getInvestmentSummary = React.useCallback(async (file: File) => {
+		const base64 = await fileToBase64(file);
+		const mimeType = file.type || 'application/pdf';
+
+		const finalPrompt = investmentRecommendationPrompt
+			.replace('{base64}', base64)
+			.replace('{mimeType}', mimeType)
+			.replace(
+				'{formatInstructions}',
+				JSON.stringify(
+					{
+						investmentSummary: 'InvestmentSummary - Comprehensive summary of the investment opportunity',
+					},
+					null,
+					2
+				)
+			);
+
+		const result = await analyzeWithGemini(finalPrompt, investmentSummarySchema);
+
+		setAnalysisResult((prev) => ({
+			...(prev || {}),
+			investmentSummary: result as InvestmentSummary,
+		}));
+	}, []);
+
 	const contextValue = React.useMemo(
 		() => ({
 			overallScore,
@@ -221,8 +229,9 @@ export const AnalysisResultProvider = ({ children }: { children: ReactNode }) =>
 			getEvaluationScores,
 			getKeyInsights,
 			getRiskAnalysis,
+			getInvestmentSummary,
 		}),
-		[analysisResult, getInvestmentRecommendation, getGeneralParameters]
+		[analysisResult, overallScore]
 	);
 
 	return <AnalysisResultContext.Provider value={contextValue}>{children}</AnalysisResultContext.Provider>;
