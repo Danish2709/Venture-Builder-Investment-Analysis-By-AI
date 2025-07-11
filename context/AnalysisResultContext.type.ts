@@ -1,3 +1,5 @@
+import { InvestmentSummary } from "@/types/investmentSummary.type";
+
 type CompanyFinancials = Partial<{
 	arr: string;
 	burnRate: string;
@@ -46,6 +48,7 @@ export type AnalysisResult = Partial<{
 	evaluationScores: EvaluationScores;
 	keyInsights: KeyInsight[];
 	riskAnalysis: RiskAnalysis[];
+	investmentSummary: InvestmentSummary;
 }>;
 
 export interface AnalysisResultContextType {
@@ -57,4 +60,5 @@ export interface AnalysisResultContextType {
 	getEvaluationScores: (file: File) => Promise<void>;
 	getKeyInsights: (file: File) => Promise<void>;
 	getRiskAnalysis: (file: File) => Promise<void>;
+	getInvestmentSummary: (file: File) => Promise<void>;
 }

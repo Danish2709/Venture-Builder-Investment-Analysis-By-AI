@@ -112,3 +112,91 @@ Respond ONLY in JSON format matching this structure:
 
 {formatInstructions}
 `;
+
+export const investmentSummaryPdfPrompt = `
+You are an expert venture capital analyst. Your task is to generate a comprehensive and professional PDF report that summarizes the investment opportunity based on the provided data.
+
+The PDF should include the following sections, each clearly titled and well-formatted:
+
+1. **Executive Summary**
+   - A concise overview of the investment opportunity, company, and key highlights.
+
+2. **Company Overview**
+   - Name, location, industry, and a brief description of the company’s mission and offering.
+
+3. **Investment Details**
+   - Investment type/stage, ticket size, and analyst confidence level.
+
+4. **Key Financials**
+   - Annual Recurring Revenue (ARR), revenue growth, burn rate, LTV/CAC ratio, and other relevant financial metrics.
+
+5. **Strategic Insights**
+   - List of key strengths and opportunities, each with a title, description, and impact level.
+
+6. **Evaluation Scores**
+   - Table or list of scores (0–100) for team composition, market intelligence, product development, financial data, legal compliance, and company operations.
+
+7. **Investment Risks**
+   - Table or list of risks, each with category, title, description, severity, and mitigation strategy.
+
+8. **Recommendations**
+   - Actionable recommendations or next steps for investors.
+
+**Formatting Instructions:**
+- Use clear section headings.
+- Use bullet points, tables, or bold text where appropriate for readability.
+- Ensure the report is suitable for sharing with investors and stakeholders.
+
+Document Format: PDF
+
+Respond ONLY in JSON format matching this structure:
+
+{
+  "executiveSummary": "string",
+  "companyOverview": {
+    "name": "string",
+    "location": "string",
+    "industry": "string",
+    "description": "string"
+  },
+  "investmentDetails": {
+    "type": "string",
+    "ticket": "string",
+    "confidence": "string"
+  },
+  "keyFinancials": {
+    "arr": "string",
+    "revenueGrowth": "string",
+    "burnRate": "string",
+    "ltvCac": "string"
+  },
+  "strategicInsights": [
+    {
+      "category": "strength | opportunity",
+      "title": "string",
+      "description": "string",
+      "impactLevel": "high | medium | low"
+    }
+  ],
+  "evaluationScores": {
+    "teamComposition": "number",
+    "marketIntelligence": "number",
+    "productDevelopment": "number",
+    "financialData": "number",
+    "legalCompliance": "number",
+    "companyOps": "number"
+  },
+  "investmentRisks": [
+    {
+      "category": "market | financial | competitive | execution | regulatory",
+      "title": "string",
+      "description": "string",
+      "severity": "low | medium | high",
+      "mitigation": "string"
+    }
+  ],
+  "recommendations": [
+    "string"
+  ]
+}
+`;

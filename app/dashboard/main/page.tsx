@@ -35,8 +35,14 @@ import { useAnalysisResult } from "@/context/AnalysisResultContext"
 
 export default function MainDashboard() {
   const router = useRouter()
-  const { getInvestmentRecommendation, getGeneralParameters, getEvaluationScores, getKeyInsights, getRiskAnalysis } =
-		useAnalysisResult();
+  const {
+		getInvestmentRecommendation,
+		getGeneralParameters,
+		getEvaluationScores,
+		getKeyInsights,
+		getRiskAnalysis,
+		getInvestmentSummary,
+  } = useAnalysisResult();
   const [isLoading, setIsLoading] = useState(true)
   const [isFileSelected, setIsFileSelected] = useState<boolean>(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
@@ -290,6 +296,7 @@ export default function MainDashboard() {
     await getEvaluationScores(file);
     await getKeyInsights(file);
     await getRiskAnalysis(file);
+    await getInvestmentSummary(file);
 		if (!selectedOption) {
 			alert('Please select an investment type first');
 			return;
