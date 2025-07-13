@@ -424,6 +424,14 @@ export default function AnalysisResultsPage() {
     return "text-slate-400"
   }
 
+  const getRecommendationType = (score: number): string => {
+    if (score >= 90) return "INVEST";
+    if (score >= 70) return "DUE DILIGENCE";
+    if (score >= 60) return "WATCHLIST";
+    return "DECLINED";
+  };
+  
+
   const getScoreIndicator = (score: number) => {
     if (score >= 80) return "bg-slate-700"
     if (score >= 70) return "bg-slate-600"
@@ -488,6 +496,8 @@ export default function AnalysisResultsPage() {
   }
 
   const recommendationStyle = getRecommendationStyle(data.recommendation)
+
+  const recommendationType = getRecommendationType(overallScore);
 
   // Define breadcrumbs for analysis results
   const breadcrumbs = [
@@ -638,7 +648,7 @@ export default function AnalysisResultsPage() {
                       <div
                         className={`inline-flex items-center px-3 py-2 rounded-full ${recommendationStyle.bg} ${recommendationStyle.ring} ring-2`}
                       >
-                        <span className={`text-sm font-medium ${recommendationStyle.text}`}>{data.recommendation}</span>
+                        <span className={`text-sm font-medium ${recommendationStyle.text}`}>{recommendationType}</span>
                       </div>
                       <div className="bg-gray-50 rounded-md px-2 py-1 border">
                         <span className="text-xs font-medium text-gray-700">ticket: 1M USD</span>
